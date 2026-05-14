@@ -41,4 +41,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, resourcedetection, transform/sanitize_logs, batch]
-      exporters: [opensearch, debug]  # skip honeycomb for now
+      exporters: [otlp_http, debug]
