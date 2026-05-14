@@ -16,3 +16,9 @@ Create this file and add your secrets:
 # Honeycomb ingest key
 HONEYCOMB_API_KEY=hcaik_01krcjhcvkmt4q...
 ```
+
+
+## Finer points
+### OTel Collector Processor ordering
+- "For the memory_limiter processor, the best practice is to add it as the first processor in a pipeline." [github](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/memorylimiterprocessor/README.md#best-practices)
+- "The batch processor should be defined in the pipeline after the memory_limiter as well as any sampling processors. This is because batching should happen after any data drops such as sampling." [github](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md)

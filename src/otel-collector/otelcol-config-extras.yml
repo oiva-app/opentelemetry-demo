@@ -14,10 +14,10 @@ exporters:
     endpoint: "https://api.honeycomb.io:443"
     headers:
       "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
-  # otlp_http/metrics:
-  #   endpoint: "https://api.honeycomb.io:443"
-  #   headers:
-  #     "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+  otlp_http/metrics:
+    endpoint: "https://api.honeycomb.io:443"
+    headers:
+      "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
 
 receivers:
   docker_stats:
@@ -27,18 +27,18 @@ processors:
   batch:
     timeout: 2s
     send_batch_max_size: 8192
-#
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [spanmetrics, otlp_http]
-    # metrics:
-    #   receivers: [otlp]
-    #   processors: [batch]
-    #   exporters: [otlp_http/metrics]
-    # logs:
-    #   receivers: [otlp]
-    #   processors: [batch]
-    #   exporters: [otlp_http]
+      processors: [memory_limiter, resourcedetection, transform/sanitize_spans, batch]
+      exporters: [otlp_http, debug, spanmetrics]
+    metrics:
+      receivers: [docker_stats, httpcheck/frontend-proxy, hostmetrics, nginx, otlp, postgresql, redis, spanmetrics, kafkametrics]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [otlp_http/metrics, debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, transform/sanitize_logs, batch]
+      exporters: [opensearch, debug]  # skip honeycomb for now
