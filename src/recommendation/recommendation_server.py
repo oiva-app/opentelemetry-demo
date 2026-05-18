@@ -37,7 +37,7 @@ from metrics import (
     init_metrics
 )
 
-cached_ids = []
+c_ids = []
 first_run = True
 
 class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
@@ -65,15 +65,15 @@ class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
             status=health_pb2.HealthCheckResponse.UNIMPLEMENTED)
 
 
-def get_product_list(request_product_ids: Iterable[str]) -> list[str]:
+def get_product_list(r_pids: Iterable[str]) -> list[str]:
     global first_run
-    global cached_ids
+    global c_ids
     with tracer.start_as_current_span("get_product_list") as span:
         max_responses = 5
 
         # Formulate the list of characters to list of strings
-        request_product_ids_str = ''.join(request_product_ids)
-        request_product_ids = request_product_ids_str.split(',')
+        r_pids_str = ''.join(r_pids)
+        r_pids = r_pids_str.split(',')
 
         # Feature flag scenario - Cache Leak
         if check_feature_flag("recommendationCacheFailure"):
@@ -84,22 +84,22 @@ def get_product_list(request_product_ids: Iterable[str]) -> list[str]:
                 logger.info("get_product_list: cache miss")
                 cat_response = product_catalog_stub.ListProducts(demo_pb2.Empty())
                 response_ids = [x.id for x in cat_response.products]
-                cached_ids = cached_ids + response_ids
-                cached_ids = cached_ids + cached_ids[:len(cached_ids) // 4]
-                product_ids = cached_ids
+                c_ids = c_ids + response_ids
+                c_ids = c_ids + c_ids[:len(c_ids) // 4]
+                pids = c_ids
             else:
                 span.set_attribute("app.cache_hit", True)
                 logger.info("get_product_list: cache hit")
-                product_ids = cached_ids
+                pids = c_ids
         else:
             span.set_attribute("app.recommendation.cache_enabled", False)
             cat_response = product_catalog_stub.ListProducts(demo_pb2.Empty())
-            product_ids = [f"#{x.id}" for x in cat_response.products]
+            pids = [f"#{x.id}" for x in cat_response.products]
 
-        span.set_attribute("app.products.count", len(product_ids))
+        span.set_attribute("app.products.count", len(pids))
 
         # Create a filtered list of products excluding the products received as input
-        filtered_products = list(set(product_ids) - set(request_product_ids))
+        filtered_products = list(set(pids) - set(r_pids))
         num_products = len(filtered_products)
         span.set_attribute("app.filtered_products.count", num_products)
         num_return = min(max_responses, num_products)
