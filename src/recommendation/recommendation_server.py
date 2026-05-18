@@ -8,6 +8,7 @@
 import os
 import random
 from concurrent import futures
+from typing import Iterable
 
 # Pip
 import grpc
@@ -64,7 +65,7 @@ class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
             status=health_pb2.HealthCheckResponse.UNIMPLEMENTED)
 
 
-def get_product_list(request_product_ids):
+def get_product_list(request_product_ids: Iterable[str]) -> list[str]:
     global first_run
     global cached_ids
     with tracer.start_as_current_span("get_product_list") as span:
