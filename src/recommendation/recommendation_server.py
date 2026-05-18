@@ -94,7 +94,7 @@ def get_product_list(request_product_ids: Iterable[str]) -> list[str]:
         else:
             span.set_attribute("app.recommendation.cache_enabled", False)
             cat_response = product_catalog_stub.ListProducts(demo_pb2.Empty())
-            product_ids = [x.id for x in cat_response.products]
+            product_ids = [f"#{x.id}" for x in cat_response.products]
 
         span.set_attribute("app.products.count", len(product_ids))
 
