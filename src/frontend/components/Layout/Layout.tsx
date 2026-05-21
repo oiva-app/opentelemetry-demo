@@ -12,10 +12,11 @@ const Layout = ({ children }: IProps) => {
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main>{children}</main> 
       <Footer />
     </>
   );
 };
 
+// MAKE THIS AN DEFAULT EXPORT
 export default Layout;

@@ -23,9 +23,9 @@ import { useCurrency } from '../../../providers/Currency.provider';
 import ProductReviewProvider from '../../../providers/ProductReview.provider';
 import ProductAIAssistantProvider from '../../../providers/ProductAIAssistant.provider';
 
-const quantityOptions = new Array(10).fill(0).map((_, i) => i + 1);
+const qtyOptions = new Array(10).fill(0).map((_, i) => i + 1);
 
-const ProductDetail: NextPage = () => {
+const ProdDetail: NextPage = () => {
   const { push, query } = useRouter();
   const [quantity, setQuantity] = useState(1);
   const {
@@ -33,11 +33,11 @@ const ProductDetail: NextPage = () => {
     cart: { items },
   } = useCart();
   const { selectedCurrency } = useCurrency();
-  const productId = query.productId as string;
+  const prodId = query.productId as string;
 
   useEffect(() => {
     setQuantity(1);
-  }, [productId]);
+  }, [prodId]);
 
   const {
     data: {
@@ -48,23 +48,23 @@ const ProductDetail: NextPage = () => {
       categories,
     } = {} as Product,
   } = useQuery({
-      queryKey: ['product', productId, 'selectedCurrency', selectedCurrency],
-      queryFn: () => ApiGateway.getProduct(productId, selectedCurrency),
-      enabled: !!productId,
+      queryKey: ['product', prodId, 'selectedCurrency', selectedCurrency],
+      queryFn: () => ApiGateway.getProduct(prodId, selectedCurrency),
+      enabled: !!prodId,
     }
   ) as { data: Product };
 
   const onAddItem = useCallback(async () => {
     await addItem({
-      productId,
+      productId: prodId,
       quantity,
     });
     push('/cart');
-  }, [addItem, productId, quantity, push]);
+  }, [addItem, prodId, quantity, push]);
 
   return (
     <AdProvider
-      productIds={[productId, ...items.map(({ productId }) => productId)]}
+      productIds={[prodId, ...items.map(({ productId }) => productId)]}
       contextKeys={[...new Set(categories)]}
     >
       <Head>
@@ -75,7 +75,7 @@ const ProductDetail: NextPage = () => {
           <S.Container>
             {picture ? (
               <S.Image
-                $src={`/images/products/${picture}`}
+                $src={`/assets/products/${picture}`}
                 data-cy={CypressFields.ProductPicture}
               />
             ) : null}
@@ -91,7 +91,7 @@ const ProductDetail: NextPage = () => {
                 onChange={event => setQuantity(+event.target.value)}
                 value={quantity}
               >
-                {quantityOptions.map(option => (
+                {qtyOptions.map(option => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -102,9 +102,9 @@ const ProductDetail: NextPage = () => {
               </S.AddToCart>
             </S.Details>
           </S.Container>
-          {productId && (
-              <ProductAIAssistantProvider productId={productId}>
-                <ProductReviewProvider productId={productId}>
+          {prodId && (
+              <ProductAIAssistantProvider productId={prodId}>
+                <ProductReviewProvider productId={prodId}>
                   <ProductReviews />
                 </ProductReviewProvider>
               </ProductAIAssistantProvider>
@@ -117,4 +117,4 @@ const ProductDetail: NextPage = () => {
   );
 };
 
-export default ProductDetail;
+export default ProdDetail;
