@@ -13,11 +13,11 @@ exporters:
   otlp_http:
     endpoint: "https://api.honeycomb.io:443"
     headers:
-      "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+      "x-honeycomb-team": "${env:HC_INGEST_KEY}"
   otlp_http/metrics:
     endpoint: "https://api.honeycomb.io:443"
     headers:
-      "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+      "x-honeycomb-team": "${env:HC_INGEST_KEY}"
 
 receivers:
   docker_stats:
